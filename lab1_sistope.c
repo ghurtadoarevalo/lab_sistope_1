@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <math.h>
 #include "functions.h"
 
 visibility_s * buildVisibility(char * readedData)
@@ -32,7 +33,19 @@ visibility_s * buildVisibility(char * readedData)
     return visibility;
 }
 
-int readData(char * fp_source_name_1)
+float distance(visibility_s * visibility)
+{
+    float distance = 0;
+    distance = sqrt(pow(visibility->u,2) + pow(visibility->v,2));
+    return distance; 
+}
+
+void sendData(visibility_s * visibility)
+{
+
+}
+
+int readData(char * fp_source_name_1, int radio, int width)
 {
     FILE* fp;
     char buf[1024];
@@ -53,12 +66,11 @@ int readData(char * fp_source_name_1)
         visibility_s * visibility = malloc(sizeof(visibility_s)); 
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
-        printf("%f\n", visibility->w);
     }
     fclose(fp);
     return 0;
 
-    
+
 }
 
 
