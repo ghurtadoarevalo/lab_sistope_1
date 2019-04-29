@@ -45,6 +45,44 @@ void sendData(visibility_s * visibility)
 
 }
 
+childsData_s * createChilds(int radiosQuantity, int height)
+{
+    childsData_s * childsData = malloc(sizeof(childsData_s));
+    childsData->childs = malloc(sizeof(childData_s)*radiosQuantity+1);
+    
+    for (int i = 0; i <= radiosQuantity; ++i)
+    {
+        childData_s * child = malloc(sizeof(child));
+        child->fd = malloc(sizeof(int)*2);
+
+        //Se abre el pipe
+        pipe(child->fd);
+
+        //Se crea el hijo
+        int pid = fork();
+        printf("%d\n",pid );
+        //Se duplica el descriptor de std
+        dup2(child->fd[1], STDOUT_FILENO);
+        wait(NULL); 
+
+        if (pid < 0)
+        {
+            printf("%s\n", "Error al crear el pipe");
+        }
+
+        else if(pid == 0)
+        {
+            dup2(child->fd[0], STDIN_FILENO);
+            //hacer execv
+            printf("Soy el hijo: %d\n",i);
+        }
+
+        //se asigna el pid al hijo
+        child->pid = pid;
+        childsData->childs[i] = child;    
+    }
+}
+
 int readData(char * fp_source_name_1, int radio, int width)
 {
     FILE* fp;
@@ -69,7 +107,7 @@ int readData(char * fp_source_name_1, int radio, int width)
         visibility = buildVisibility(buf);
 
         /* Procesos Hijos */
-        origin_distance = distance(visibility->u, visibility->v);
+        origin_distance = distance(visibility);
 
         /* listaRadio = [0, R1, R2, R3,..., Rn] -> n = numero de radios
         int i = 0;
@@ -99,9 +137,11 @@ int readData(char * fp_source_name_1, int radio, int width)
 int main()
 {
 	char * fp_source_name_1 = "text.csv";
+    int radio = 3;
+    int width = 3;
 
-	
-    readData(fp_source_name_1);
+    childsData_s * childsData = createChilds(radio,width);
+    readData(fp_source_name_1,radio,width);
 	//buildVisibilities();	
 
 }
