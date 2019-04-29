@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <unistd.h>
+#include <unistd.h> 
 #include <math.h>
 #include "functions.h"
 
@@ -49,6 +49,7 @@ int readData(char * fp_source_name_1, int radio, int width)
 {
     FILE* fp;
     char buf[1024];
+    int origin_distance;
     /*if (argc != 2)
     {
         fprintf(stderr, "Usage: %s <soure-file>\n", argv[0]);
@@ -66,17 +67,39 @@ int readData(char * fp_source_name_1, int radio, int width)
         visibility_s * visibility = malloc(sizeof(visibility_s)); 
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
+
+        /* Procesos Hijos */
+        origin_distance = distance(visibility->u, visibility->v);
+
+        /* listaRadio = [0, R1, R2, R3,..., Rn] -> n = numero de radios
+        int i = 0;
+        while(i < n){
+            if(listaRadio[i] <= origin_distance && origin_distance < listaRadio[i+1]){
+                execute child process i -> ni idea como hacer eso
+                i = 100000;
+            }
+
+            else if(i == n-1){
+                execute child process i+1
+                i = 100000;
+            }
+
+            i = i + 1;
+        }
+        */
+
+        /* Fin  */
+
     }
     fclose(fp);
-    return 0;
-
-
+    return 0;   
 }
 
 
 int main()
 {
 	char * fp_source_name_1 = "text.csv";
+
 	
     readData(fp_source_name_1);
 	//buildVisibilities();	
