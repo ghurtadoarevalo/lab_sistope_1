@@ -64,9 +64,24 @@ int readData(char * fp_source_name_1)
         visibility = buildVisibility(buf);
 
         /* Procesos Hijos */
-        origin_distance = distance(visibility->u, visibility->v)
+        origin_distance = distance(visibility->u, visibility->v);
 
-       // If variable x.x
+        /* listaRadio = [0, R1, R2, R3,..., Rn] -> n = numero de radios
+        int i = 0;
+        while(i < n){
+            if(listaRadio[i] <= origin_distance && origin_distance < listaRadio[i+1]){
+                execute child process i -> ni idea como hacer eso
+                i = 100000;
+            }
+
+            else if(i == n-1){
+                execute child process i+1
+                i = 100000;
+            }
+
+            i = i + 1;
+        }
+        */
 
         /* Fin  */
 
