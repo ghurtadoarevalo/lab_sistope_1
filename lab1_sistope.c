@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <unistd.h> 
+#include <unistd.h>
+#include <sys/wait.h> 
 #include <math.h>
 #include "functions.h"
 
@@ -49,55 +50,45 @@ childsData_s * createChilds(int radiosQuantity, int height)
 {
     childsData_s * childsData = malloc(sizeof(childsData_s));
     childsData->childs = malloc(sizeof(childData_s)*radiosQuantity+1);
+    childsData->lenght = radiosQuantity+1;
+    int pid;
     
-
-    childData_s * child = malloc(sizeof(child));
-    child->fd = malloc(sizeof(int)*2);
-    //Se abre el pipe
-    pipe(child->fd);
-
-    //Se crea el hijo
-    int pid = fork();
-
-    child->pid = pid;
-    childsData->childs[0] = child; 
-    
-    for (int i = 1; i <= radiosQuantity; ++i)
+    for(int i = 0; i < radiosQuantity+1; i++)
     {
+        childData_s * child = malloc(sizeof(child));
+        child->fd = malloc(sizeof(int)*2);
 
-        if (pid < 0)
+        //Se abre el Pipe
+        if(pipe(child->fd) == -1)
         {
-            printf("%s\n", "Error al crear el pipe");
+            perror("Error al crear el Pipe");
+            exit(-1);
         }
 
-        else if(pid == 0)
+        //Se crea el hijo
+        if((pid = fork()) < 0)
         {
-            //dup2(child->fd[0], STDIN_FILENO);
-            //hacer execv
-            printf("Soy el hijo: %d\n",i);
-	    break;
+            perror("Te lo echaste");
+            exit(-1);
         }
 
-	else
-	{
-	    childData_s * child = malloc(sizeof(child));
-            child->fd = malloc(sizeof(int)*2);
+        if(pid == 0)
+        {
+            child->pid = getpid();// -> se copia el valor del pid child_struct del hijo
+            printf("Soy el hijo: %d y mi papi es: %d\n", getpid(), getppid());
+            /*
+            algo como proceso exec que termine con la ejecucion del hijo en el programa
+            padre para que no se creen "nietos"
+            */
+            exit(0); 
+        }
+        child->pid = getpid();// -> siempre el mismo, el del padre
 
-            //Se abre el pipe
-            pipe(child->fd);
-
-            //Se crea el hijo
-            int pid = fork();
-            printf("Soy el padre y cree al hijo de pid: %d en la iteraciíon i: %d\n", pid,i);
-            //Se duplica el descriptor de std
-            //dup2(child->fd[1], STDOUT_FILENO);
-
-            //se asigna el pid al hijo
-            child->pid = pid;
-            childsData->childs[i] = child;  
-	    wait(NULL);
-	}
+        childsData->childs[i] = child;
     }
+    wait(NULL);
+
+    return childsData;
 }
 
 
@@ -152,7 +143,7 @@ int readData(char * fp_source_name_1, int radio, int width)
 }
 
 
-int main()
+int main(int argc, char const *argv[])
 {
 	char * fp_source_name_1 = "text.csv";
     int radio = 3;
@@ -160,6 +151,14 @@ int main()
 
     childsData_s * childsData = createChilds(radio,width);
     readData(fp_source_name_1,radio,width);
+
+    for(int i = 0; i < radio+1; i++)
+    {
+        printf("pid: %d\n", childsData->childs[i]->pid);
+    }
+
+
 	//buildVisibilities();	
 
+    return 0;
 }
