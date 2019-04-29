@@ -50,20 +50,20 @@ childsData_s * createChilds(int radiosQuantity, int height)
     childsData_s * childsData = malloc(sizeof(childsData_s));
     childsData->childs = malloc(sizeof(childData_s)*radiosQuantity+1);
     
-    for (int i = 0; i <= radiosQuantity; ++i)
+
+    childData_s * child = malloc(sizeof(child));
+    child->fd = malloc(sizeof(int)*2);
+    //Se abre el pipe
+    pipe(child->fd);
+
+    //Se crea el hijo
+    int pid = fork();
+
+    child->pid = pid;
+    childsData->childs[0] = child; 
+    
+    for (int i = 1; i <= radiosQuantity; ++i)
     {
-        childData_s * child = malloc(sizeof(child));
-        child->fd = malloc(sizeof(int)*2);
-
-        //Se abre el pipe
-        pipe(child->fd);
-
-        //Se crea el hijo
-        int pid = fork();
-        printf("%d\n",pid );
-        //Se duplica el descriptor de std
-        dup2(child->fd[1], STDOUT_FILENO);
-        wait(NULL); 
 
         if (pid < 0)
         {
@@ -72,16 +72,34 @@ childsData_s * createChilds(int radiosQuantity, int height)
 
         else if(pid == 0)
         {
-            dup2(child->fd[0], STDIN_FILENO);
+            //dup2(child->fd[0], STDIN_FILENO);
             //hacer execv
             printf("Soy el hijo: %d\n",i);
+	    break;
         }
 
-        //se asigna el pid al hijo
-        child->pid = pid;
-        childsData->childs[i] = child;    
+	else
+	{
+	    childData_s * child = malloc(sizeof(child));
+            child->fd = malloc(sizeof(int)*2);
+
+            //Se abre el pipe
+            pipe(child->fd);
+
+            //Se crea el hijo
+            int pid = fork();
+            printf("Soy el padre y cree al hijo de pid: %d en la iteraciíon i: %d\n", pid,i);
+            //Se duplica el descriptor de std
+            //dup2(child->fd[1], STDOUT_FILENO);
+
+            //se asigna el pid al hijo
+            child->pid = pid;
+            childsData->childs[i] = child;  
+	    wait(NULL);
+	}
     }
 }
+
 
 int readData(char * fp_source_name_1, int radio, int width)
 {
