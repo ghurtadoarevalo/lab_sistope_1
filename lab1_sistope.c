@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <unistd.h>
+#include <unistd.h> 
+#include <math.h>
 #include "functions.h"
 
 visibility_s * buildVisibility(char * readedData)
@@ -32,10 +33,18 @@ visibility_s * buildVisibility(char * readedData)
     return visibility;
 }
 
+
+float distance(float coordinate_u, float coordinate_v){
+    float dist = sqrt((pow(coordinate_u, 2) + pow(coordinate_v, 2)));
+    return dist;
+}
+
+
 int readData(char * fp_source_name_1)
 {
     FILE* fp;
     char buf[1024];
+    int origin_distance;
     /*if (argc != 2)
     {
         fprintf(stderr, "Usage: %s <soure-file>\n", argv[0]);
@@ -53,18 +62,24 @@ int readData(char * fp_source_name_1)
         visibility_s * visibility = malloc(sizeof(visibility_s)); 
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
-        printf("%f\n", visibility->w);
+
+        /* Procesos Hijos */
+        origin_distance = distance(visibility->u, visibility->v)
+
+       // If variable x.x
+
+        /* Fin  */
+
     }
     fclose(fp);
-    return 0;
-
-    
+    return 0;   
 }
 
 
 int main()
 {
 	char * fp_source_name_1 = "text.csv";
+
 	
     readData(fp_source_name_1);
 	//buildVisibilities();	
