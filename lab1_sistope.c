@@ -52,12 +52,11 @@ childsData_s * createChilds(int radiosQuantity, int height)
     childsData->childs = malloc(sizeof(childData_s)*radiosQuantity+1);
     childsData->lenght = radiosQuantity+1;
     int pid;
-    
+    int status;
     for(int i = 0; i < radiosQuantity+1; i++)
     {
         childData_s * child = malloc(sizeof(child));
         child->fd = malloc(sizeof(int)*2);
-
         //Se abre el Pipe
         if(pipe(child->fd) == -1)
         {
@@ -80,13 +79,22 @@ childsData_s * createChilds(int radiosQuantity, int height)
             algo como proceso exec que termine con la ejecucion del hijo en el programa
             padre para que no se creen "nietos"
             */
-            exit(0); 
+            //exit(0); no puede ser exit, porque el hijo se cerraría, lo que necesitamos es que no haga nada más 
+            break;
         }
-        child->pid = getpid();// -> siempre el mismo, el del padre
 
-        childsData->childs[i] = child;
+        else
+        {
+            child->pid = pid;// Se almacena el pid de todos los hijos creados, que seran las zonas de radio
+            childsData->childs[i] = child;    
+
+            int w = waitpid(pid, &status, WUNTRACED | WCONTINUED);
+            if (w == -1) {
+                perror("waitpid");
+                exit(EXIT_FAILURE);
+            }
+        }
     }
-    wait(NULL);
 
     return childsData;
 }
