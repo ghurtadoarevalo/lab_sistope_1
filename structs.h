@@ -13,8 +13,7 @@ typedef struct {
 
 //Estructura que mantiene una lista de los fd's de cada hijo
 typedef struct {
-	int * fd_right; // fd = [data,data];  pipe de ida 
-	int * fd_left; // fd = [data,data]; pide de vuelta
+	int * fd; // fd = [fd0,fd1,fd0,fd1];  pipe de ida y vuelta 
 	int pid;
 } childData_s;
 
