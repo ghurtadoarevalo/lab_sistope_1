@@ -210,7 +210,7 @@ int main(int argc, char const *argv[])
         int status;
         waitpid(childsData->childs[i]->pid, &status,WUNTRACED | WCONTINUED);   
     }
-
+    
 
 
 
