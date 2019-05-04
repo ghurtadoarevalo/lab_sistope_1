@@ -22,4 +22,10 @@ typedef struct {
 	int lenght;
 }childsData_s;
 
+typedef struct 
+{
+	float number;
+	int status;
+}readedData;
+
 #endif
