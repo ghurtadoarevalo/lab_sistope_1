@@ -8,11 +8,13 @@ typedef struct {
 	float r;
 	float i;
 	float w;
+	int status;
 } visibility_s;
 
 //Estructura que mantiene una lista de los fd's de cada hijo
 typedef struct {
-	int * fd; // fd = [data,data];
+	int * fd_right; // fd = [data,data];  pipe de ida 
+	int * fd_left; // fd = [data,data]; pide de vuelta
 	int pid;
 } childData_s;
 
@@ -21,11 +23,5 @@ typedef struct {
 	childData_s ** childs; // childs = [[fd0,fd0,pid0],[fd1,fd1,pid1],...[fdN,fdN,pidN]] =>  N = cantidad de hijos creados
 	int lenght;
 }childsData_s;
-
-typedef struct 
-{
-	float number;
-	int status;
-}readedData;
 
 #endif
