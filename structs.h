@@ -23,4 +23,10 @@ typedef struct {
 	int lenght;
 }childsData_s;
 
+struct visibilityList_s {
+	visibility_s *visibility;
+	struct visibilityList_s *next;
+};
+typedef struct visibilityList_s visibilityList_s;
+
 #endif
