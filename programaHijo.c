@@ -8,47 +8,47 @@
 #include "functions.h"
 
 
-float getMediaR(visibility_s *visibilityList, int len)
+float getAverageaR(visibility_s *visibilityList, int len)
 {
-	float sumatoriaR = 0;
+	float summR = 0;
 
 	for(int i = 0; i < len; i++)
-		sumatoriaR = visibilityList[i].r + sumatoriaR;
+		summR = visibilityList[i].r + summR;
 
-	return sumatoriaR/len;
+	return summR/len;
 }	
 
 
-float getMediaI(visibility_s *visibilityList, int len)
+float getAverageI(visibility_s *visibilityList, int len)
 {
-	float sumatoriaI = 0;
+	float summI = 0;
 
 	for(int i = 0; i < len; i++)
-		sumatoriaI = visibilityList[i].i + sumatoriaI;
+		summI = visibilityList[i].i + summI;
 
-	return sumatoriaI/len;
+	return summI/len;
 }
 
 
-float getPotencia(visibility_s *visibilityList, int len)
+float getPow(visibility_s *visibilityList, int len)
 {
-	float sumatoriaW = 0;
+	float summW = 0;
 
 	for(int i = 0; i < len; i++)
-		sumatoriaW = sqrt(pow(visibilityList[i].r, 2) + pow(visibilityList[i].i, 2)) + sumatoriaW;
+		summW = sqrt(pow(visibilityList[i].r, 2) + pow(visibilityList[i].i, 2)) + summW;
 
-	return sumatoriaW;
+	return summW;
 }
 
 
-float getRuido(visibility_s *visibilityList, int len)
+float getNoise(visibility_s *visibilityList, int len)
 {
-	float sumatoriaR = 0;
+	float summR = 0;
 
 	for(int i = 0; i < len; i++)
-		sumatoriaR = visibilityList[i].w + sumatoriaR;
+		summR = visibilityList[i].w + summR;
 
-	return sumatoriaR;
+	return summR;
 }
 
 
