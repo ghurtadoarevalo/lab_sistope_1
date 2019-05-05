@@ -14,6 +14,7 @@ float distance(visibility_s * visibility)
 
 int main(int argc, char *argv[]) 
 {
+    printf("\n\n******************  CHILD PROGRAM %d  ******************\n\n", getpid());
     printf("Soy el hijo: %d y mi papi es: %d\n", getpid(), getppid());
     
     visibility_s * visibility = malloc(sizeof(visibility_s));
@@ -34,4 +35,5 @@ int main(int argc, char *argv[])
     printf("Soy el hijo: %d y mi papi es: %d, me mataron\n", getpid(), getppid());
 
     write(1, visibility, sizeof(visibility_s));
+    printf("\n\n******************  END CHILD %d  ******************\n\n", getpid());
 }

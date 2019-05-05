@@ -59,7 +59,7 @@ childsData_s * createChilds(int radiosQuantity, int height)
     {
         childData_s * child = malloc(sizeof(child));
         child->fd = malloc(sizeof(int)*4);
-
+ 	
         //Se abre el Pipe de ida
         if(pipe(child->fd) == -1)
         {
@@ -151,9 +151,8 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
     int * radioList = malloc(sizeof(int)*radio+1); // radioList = [0, R1, R2, R3,..., Rn] -> n = numero de radios
 
     for (int i = 0; i < radio+1; ++i)
-    {
-        radioList[i] = i*width;
-    }
+ 		radioList[i] = i*width;
+   
 
 
     while (fgets(buf, sizeof(buf), fp) != NULL)
@@ -162,7 +161,7 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
 
-        /* Procesos Hijos */
+        /* Childs process */
         float origin_distance = distance(visibility);
         
         int i = 0;
@@ -173,15 +172,9 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
                 write(childsData->childs[i]->fd[1], visibility, sizeof(visibility_s));
             }
 
-            /*else if(i == n-1){
-                execute child process i+1
-                i = 100000;
-            }*/
-
             i = i + 1;
         }
-
-         /* Fin  */
+         /* End  childs */
     }
 
     for (int i = 0; i < radio+1; ++i)
