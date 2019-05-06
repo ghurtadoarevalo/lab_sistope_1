@@ -67,30 +67,21 @@ float getNoise(visibilityList_s *visibilityList)
     return summR;
 }
 
-visibilityList_s *createList(visibility_s *newVisibility)
-{   
-    if(newVisibility == NULL){
-        perror("Empty struct");
-        exit(-1);
-    }
-
-    visibilityList_s *visibilityList =  malloc(sizeof(visibilityList_s));
-    visibilityList->visibility = malloc(sizeof(visibility_s));
-
-
-    visibilityList->visibility = newVisibility;
-    visibilityList->next = NULL;
-
-    return visibilityList;
-}
 
 void appendVisibility(visibilityList_s **visibilityList, visibility_s *newVisibility)
 {
-    visibilityList_s *newVisibilityList =  malloc(sizeof(visibilityList_s));   
-    newVisibilityList->visibility = newVisibility;
-    
-    newVisibilityList->next = (*visibilityList);
-    *visibilityList = newVisibilityList;
+    if((*visibilityList) == NULL){
+        (*visibilityList) =  malloc(sizeof(visibilityList_s));
+        (*visibilityList)->visibility = newVisibility;
+        (*visibilityList)->next = NULL;
+    }
+    else{
+        visibilityList_s *newVisibilityList =  malloc(sizeof(visibilityList_s));   
+        newVisibilityList->visibility = newVisibility;
+        
+        newVisibilityList->next = (*visibilityList);
+        *visibilityList = newVisibilityList;  
+    }
 }
 
 void printDataList(visibilityList_s *visibilityList){
@@ -105,47 +96,31 @@ void printDataList(visibilityList_s *visibilityList){
     printf("End data --------------\n");
 }
 
-
-int main(int argc, char *argv[]) 
+int main(int argc, char const *argv[])
 {
-    //printf("Soy el hijo: %d y mi papi es: %d\n", getpid(), getppid());
-    
-    visibility_s * visibility = malloc(sizeof(visibility_s));
-    visibilityList_s *visibilityList;
+    visibility_s *visibility;
+    visibilityList_s *visibilityList = NULL;
     int len = 0;
-    
-    read(0, visibility, sizeof(visibility_s));
-    float test = distance(visibility);
 
-    visibilityList = createList(visibility);
-    printDataList(visibilityList);
-    
-    //printf("Mi papi me está pasando origin_distance: %f con status: %d y yo soy: %d\n", test, visibility->status, getpid()) ;
-    
-    while(!(visibility->u == 0.f && visibility->v == 0.f && visibility->r == 0.f && visibility->i == 0.f && visibility->w == 0.f))
-    {
+    do{
+        visibility = malloc(sizeof(visibility_s));
+        read(0, visibility, sizeof(visibility_s));
+
         if (visibility->status == 1)
         {
             visibility->status = 0;
             appendVisibility(&visibilityList, visibility);
-            len = len + 1;
-            //printf("Mi papi me está pasando origin_distance: %f con status: %d y yo soy: %d, en el while\n", test, visibility->status, getpid());
+            len++;
         }
-        
-        visibility = malloc(sizeof(visibility_s));
-        read(0, visibility, sizeof(visibility_s));
-    }
 
+    }while(!(visibility->u == 0.f && visibility->v == 0.f && visibility->r == 0.f && visibility->i == 0.f && visibility->w == 0.f));
 
-
+    printDataList(visibilityList);
 
     printf("---([%d] %f, %f, %f, %f)---\n", len, getAverageR(visibilityList, len), getAverageI(visibilityList, len),
         getPow(visibilityList), getNoise(visibilityList));
-
-   //printf("Soy el hijo: %d y mi papi es: %d, me mataron\n", getpid(), getppid());
-
+    
     write(1, visibility, sizeof(visibility_s));
-
 
     return 0;
 }
