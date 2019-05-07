@@ -86,14 +86,14 @@ void appendVisibility(visibilityList_s **visibilityList, visibility_s *newVisibi
 
 void printDataList(visibilityList_s *visibilityList){
     visibilityList_s *auxVisibilityList = visibilityList;
-    printf("Star data -------------\n");
+    //printf("Star data -------------\n");
     while(auxVisibilityList != NULL){
-        printf("(%f %f %f %f %f)\n", (auxVisibilityList->visibility)->u, (auxVisibilityList->visibility)->v,
-            (auxVisibilityList->visibility)->r, (auxVisibilityList->visibility)->i, (auxVisibilityList->visibility)->w);
+        //printf("(%f %f %f %f %f)\n", (auxVisibilityList->visibility)->u, (auxVisibilityList->visibility)->v,
+         //   (auxVisibilityList->visibility)->r, (auxVisibilityList->visibility)->i, (auxVisibilityList->visibility)->w);
 
         auxVisibilityList = auxVisibilityList->next; 
     } 
-    printf("End data --------------\n");
+    //printf("End data --------------\n");
 }
 
 int main(int argc, char const *argv[])
@@ -121,13 +121,24 @@ int main(int argc, char const *argv[])
     //    getPow(visibilityList), getNoise(visibilityList));
     
     float * results = malloc(sizeof(float)*4);
-    results[0] = getAverageR(visibilityList, len);
-    results[1] = getAverageI(visibilityList, len);
-    results[2] = getPow(visibilityList);
-    results[3] = getNoise(visibilityList); 
 
-    char num[20] = "hola";
-    write(1, num, 100);
+    if (len > 0)
+    {
+    	results[0] = getAverageR(visibilityList, len);
+	    results[1] = getAverageI(visibilityList, len);
+	    results[2] = getPow(visibilityList);
+	    results[3] = getNoise(visibilityList); 
+    }
+
+    else
+    {
+    	results[0] = 0;
+	    results[1] = 0;
+	    results[2] = 0;
+	    results[3] = 0;
+    }
+
+    write(1, results, sizeof(float)*4);
 
     return 0;
 }

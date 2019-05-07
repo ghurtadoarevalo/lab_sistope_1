@@ -43,10 +43,6 @@ float distance(visibility_s * visibility)
     return distance; 
 }
 
-void sendData(visibility_s * visibility)
-{
-
-}
 
 childsData_s * createChilds(int radiosQuantity, int height)
 {
@@ -86,9 +82,10 @@ childsData_s * createChilds(int radiosQuantity, int height)
         {
             dup2(child->fd_right[0],0); //Dup de lectura
             close(child->fd_right[1]); //Se cierra el escribir para el hijo
+            
             dup2(child->fd_left[1],1); //Dup de escritura
-            //close(child->fd_left[0]); //Se cierra el leer para el hijo
             close(child->fd_left[0]),
+            
             execl("child","a","b", NULL);
             
             /*child->pid = getpid();// -> se copia el valor del pid child_struct del hijo
@@ -121,10 +118,8 @@ childsData_s * createChilds(int radiosQuantity, int height)
         {
             child->pid = pid;// Se almacena el pid de todos los hijos creados, que seran las zonas de radio
             childsData->childs[i] = child;    
-            close(child->fd_right[0]); //Se cierra el leer para el padre
-            close(child->fd_right[1]); //Se cierra el escribir para el padre
-            close(child->fd_left[0]); //Se cierra el leer para el padre
-            close(child->fd_left[1]); //Se cierra el escribir para el padre
+            close(child->fd_right[0]); //Se cierra el leer para el padre de ida
+            close(child->fd_left[1]); //Se cierra el escribir para el padre de vuelta
         }
     }
 
@@ -214,12 +209,11 @@ int main(int argc, char const *argv[])
 
 
     //El padre recibe los últimos mensajes de sus hijos
-    char num[20];
+    float * results = malloc(sizeof(float)*4);
     for(int i = 0; i < radio+1; i++)
     {
-        float * results = malloc(sizeof(float)*4);
-        read(childsData->childs[i]->fd_left[0], num, 20);
-        printf("recibi el ultimo aliento de hijo: %d con results[0]: %s\n",childsData->childs[i]->pid, num);
+        read(childsData->childs[i]->fd_left[0], results, sizeof(float)*4);
+        printf("recibi el ultimo aliento de hijo: %d con results: %f %f %f %f\n",childsData->childs[i]->pid, results[0], results[1], results[2], results[3]);
     }
 
    
