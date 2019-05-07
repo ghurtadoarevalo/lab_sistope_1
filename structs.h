@@ -8,6 +8,7 @@ typedef struct {
 	float r;
 	float i;
 	float w;
+	int status;
 } visibility_s;
 
 //Estructura que mantiene una lista de los fd's de cada hijo
@@ -23,10 +24,10 @@ typedef struct {
 	int lenght;
 }childsData_s;
 
-typedef struct 
-{
-	float number;
-	int status;
-}readedData;
+struct visibilityList_s {
+	visibility_s *visibility;
+	struct visibilityList_s *next;
+};
+typedef struct visibilityList_s visibilityList_s;
 
 #endif

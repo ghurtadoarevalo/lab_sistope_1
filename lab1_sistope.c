@@ -23,6 +23,8 @@ visibility_s * buildVisibility(char * readedData)
     visibility->i = atof(token);
     token = strtok(NULL, ",");
     visibility->w = atof(token);
+    visibility->status = 1;
+
     /*
     printf("U: %f ; ", visibilities->list[i-1]->u);
     printf("V: %f ;", visibilities->list[i-1]->v);
@@ -58,11 +60,11 @@ childsData_s * createChilds(int radiosQuantity, int height)
         childData_s * child = malloc(sizeof(child));
         child->fd_right = malloc(sizeof(int)*2);        
         child->fd_left = malloc(sizeof(int)*2);
- 	
+    
         //Se abre el Pipe de ida
         if(pipe(child->fd_right) == -1)
         {
-            perror("Error al crear el Pipe");
+            perror("Error al crear el Pipe de ida");
             exit(-1);
         }
 
@@ -84,38 +86,35 @@ childsData_s * createChilds(int radiosQuantity, int height)
         {
             dup2(child->fd_right[0],0); //Dup de lectura
             close(child->fd_right[1]); //Se cierra el escribir para el hijo
-            close(child->fd_right[1]);
-            //dup2(child->fd_left[1],1); //Dup de escritura
-            close(child->fd_left[0]); //Se cierra el leer para el hijo
-            close(child->fd_left[1]),
+            dup2(child->fd_left[1],1); //Dup de escritura
+            //close(child->fd_left[0]); //Se cierra el leer para el hijo
+            close(child->fd_left[0]),
             execl("child","a","b", NULL);
             
             /*child->pid = getpid();// -> se copia el valor del pid child_struct del hijo
             
             printf("Soy el hijo: %d y mi papi es: %d\n", getpid(), getppid());
-            readedData * data = malloc(sizeof(readedData));
-            read(child->fd[0], data, sizeof(data));
-            printf("Mi papi me está pasando esto: %f con status: %d y yo soy: %d\n", data->number, data->status, getpid()) ;
-            while(data->number != 0.f)
+            
+            visibility_s * visibility = malloc(sizeof(visibility_s));
+            read(child->fd_right[0], visibility, sizeof(visibility_s));
+            float test = distance(visibility);
+            printf("Mi papi me está pasando origin_distance: %f con status: %d y yo soy: %d\n", test, visibility->status, getpid()) ;
+            while(!(visibility->u == 0.f && visibility->v == 0.f && visibility->r == 0.f && visibility->i == 0.f && visibility->w == 0.f))
             {
-                if (data->status == 1)
+                if (visibility->status == 1)
                 {
-                    data->status = 0;
-                    printf("Soy el hijo: %d y mi papi es: %d, estoy en el while con data: %f\n", getpid(), getppid(), data->number);
+                    float test = distance(visibility);
+                    visibility->status = 0;
+                    printf("Mi papi me está pasando origin_distance: %f con status: %d y yo soy: %d, en el while\n", test, visibility->status, getpid()) ;
                 }
-                read(child->fd[0], data, sizeof(data));
+                read(child->fd_right[0], visibility, sizeof(visibility_s));
 
             }
             printf("Soy el hijo: %d y mi papi es: %d, me mataron\n", getpid(), getppid());
 
-            exit(1);
+            write(child->fd_left[0], visibility, sizeof(visibility_s));*/
 
-            /*
-            algo como proceso exec que termine con la ejecucion del hijo en el programa
-            padre para que no se creen "nietos"
-            */
-            //exit(0); no puede ser exit, porque el hijo se cerraría, lo que necesitamos es que no haga nada más 
-            break;
+            exit(1);
         }
 
         else
@@ -152,9 +151,8 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
     int * radioList = malloc(sizeof(int)*radio+1); // radioList = [0, R1, R2, R3,..., Rn] -> n = numero de radios
 
     for (int i = 0; i < radio+1; ++i)
-    {
         radioList[i] = i*width;
-    }
+   
 
 
     while (fgets(buf, sizeof(buf), fp) != NULL)
@@ -163,24 +161,21 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
 
-        /* Procesos Hijos */
+        /* Childs process */
         float origin_distance = distance(visibility);
-        printf("%f\n",origin_distance);
         
         int i = 0;
-        while(i < radio){
+        while(i < radio)
+        {
             if(radioList[i] <= origin_distance && origin_distance < radioList[i+1]){
                 printf("Entre en i: %d con origin_distance: %f\n",i,origin_distance);
                 write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
             }
 
-            /*else if(i == n-1){
-                execute child process i+1
-                i = 100000;
-            }*/
-
             i = i + 1;
         }
+         /* End  childs */
+    }
 
     for (int i = 0; i < radio+1; ++i)
     {
@@ -193,7 +188,8 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
     }
 
-    }
+
+
     fclose(fp);
     return 0;   
 }
@@ -201,13 +197,13 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
 
 int main(int argc, char const *argv[])
 {
-	char * fp_source_name_1 = "text.csv";
+    char * fp_source_name_1 = "text.csv";
     int radio = 3;
     int width = 60;
     childsData_s * childsData = createChilds(radio,width);
     readData(fp_source_name_1,radio,width, childsData);
 
-
+    //El padre espera a cada uno de los hijos
     for(int i = 0; i < radio+1; i++)
     {
         int status;
@@ -215,27 +211,20 @@ int main(int argc, char const *argv[])
 
     }
 
-    for(int i = 0; i < radio+1; i++)
-    {
-        readedData * data = malloc(sizeof(readedData));
-        float number;
-        scanf("%f", &number);
-        data->number = number;
-        data->status = 1;
-        write(childsData->childs[1]->fd[1], data, sizeof(data));
-        //printf("pid: %d\n", childsData->childs[i]->pid);
-    }
 
+
+    //El padre recibe los últimos mensajes de sus hijos
+    char num[20];
     for(int i = 0; i < radio+1; i++)
     {
         float * results = malloc(sizeof(float)*4);
-        read(childsData->childs[i]->fd_left[0], results, sizeof(float)*4);
-        printf("recibi el ultimo aliento de hijo: %d con results[0]: %f\n",childsData->childs[i]->pid, results[0]);
+        read(childsData->childs[i]->fd_left[0], num, 20);
+        printf("recibi el ultimo aliento de hijo: %d con results[0]: %s\n",childsData->childs[i]->pid, num);
     }
 
    
 
-	//buildVisibilities();	
+    //buildVisibilities();  
 
     return 0;
 }

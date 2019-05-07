@@ -115,10 +115,10 @@ int main(int argc, char const *argv[])
 
     }while(!(visibility->u == 0.f && visibility->v == 0.f && visibility->r == 0.f && visibility->i == 0.f && visibility->w == 0.f));
 
-    printDataList(visibilityList);
+    //printDataList(visibilityList);
 
-    printf("---([%d] %f, %f, %f, %f)---\n", len, getAverageR(visibilityList, len), getAverageI(visibilityList, len),
-        getPow(visibilityList), getNoise(visibilityList));
+    //printf("---([%d] %f, %f, %f, %f)---\n", len, getAverageR(visibilityList, len), getAverageI(visibilityList, len),
+    //    getPow(visibilityList), getNoise(visibilityList));
     
     float * results = malloc(sizeof(float)*4);
     results[0] = getAverageR(visibilityList, len);
@@ -126,7 +126,8 @@ int main(int argc, char const *argv[])
     results[2] = getPow(visibilityList);
     results[3] = getNoise(visibilityList); 
 
-    write(1, results, sizeof(float)*4);
+    char num[20] = "hola";
+    write(1, num, 100);
 
     return 0;
 }
