@@ -1,5 +1,12 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <sys/wait.h> 
+#include <math.h>
 
 //Estructura que se utiliza para almacenar una visibilidad
 typedef struct {
@@ -13,7 +20,8 @@ typedef struct {
 
 //Estructura que mantiene una lista de los fd's de cada hijo
 typedef struct {
-	int * fd; // fd = [fd0,fd1,fd0,fd1];  pipe de ida y vuelta 
+	int * fd_right; // fd = [fd0,fd1];  pipe de ida 
+	int * fd_left; // fd = [fd0,fd1];  pipe de vuelta 
 	int pid;
 } childData_s;
 
@@ -28,5 +36,35 @@ struct visibilityList_s {
 	struct visibilityList_s *next;
 };
 typedef struct visibilityList_s visibilityList_s;
+
+//------------------------------------------------------------
+
+visibility_s * buildVisibility(char * readedData);
+
+float distance(visibility_s * visibility);
+
+childsData_s * createChilds(int radiosQuantity, int height);
+
+int readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData);
+
+//------------------------------------------------------------
+
+float distance(visibility_s *visibility);
+
+float getAverageR(visibilityList_s *visibilityList, int len);
+
+float getAverageI(visibilityList_s *visibilityList, int len);
+
+float getPow(visibilityList_s *visibilityList);
+
+float getNoise(visibilityList_s *visibilityList);
+
+void appendVisibility(visibilityList_s **visibilityList, visibility_s *newVisibility);
+
+void printDataList(visibilityList_s *visibilityList);
+
+void createOutFile(char *outFileName);
+
+void writeData(int number, float *results, char *outFileName);
 
 #endif
