@@ -23,6 +23,7 @@ typedef struct {
 	int * fd_right; // fd = [fd0,fd1];  pipe de ida 
 	int * fd_left; // fd = [fd0,fd1];  pipe de vuelta 
 	int pid;
+	int flag;
 } childData_s;
 
 //Estructura que mantiene una lista de los fd's de cada hijo
@@ -43,7 +44,7 @@ visibility_s * buildVisibility(char * readedData);
 
 float distance(visibility_s * visibility);
 
-childsData_s * createChilds(int radiosQuantity, int height);
+childsData_s * createChilds(int radiosQuantity);
 
 int readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData);
 

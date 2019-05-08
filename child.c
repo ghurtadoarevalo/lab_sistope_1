@@ -1,6 +1,6 @@
 #include "functions.h"
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     visibility_s *visibility;
     visibilityList_s *visibilityList = NULL;
@@ -29,7 +29,9 @@ int main(int argc, char const *argv[])
         results[4] = len;
     }
 
+    printf("Fin hijo\n");             
     write(1, results, sizeof(float)*5);
+
 
     return 0;
 }

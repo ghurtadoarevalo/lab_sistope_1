@@ -39,7 +39,7 @@ float distance(visibility_s * visibility)
 }
 
 
-childsData_s * createChilds(int radiosQuantity, int height)
+childsData_s * createChilds(int radiosQuantity)
 {
     childsData_s * childsData = malloc(sizeof(childsData_s));
     childsData->childs = malloc(sizeof(childData_s)*radiosQuantity+1);
@@ -81,7 +81,7 @@ childsData_s * createChilds(int radiosQuantity, int height)
             dup2(child->fd_left[1],1); //Dup de escritura
             close(child->fd_left[0]),
             
-            execl("child","a","b", NULL);
+            execl("child", "a", "b", NULL);
             
             /*child->pid = getpid();// -> se copia el valor del pid child_struct del hijo
             
@@ -137,8 +137,9 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
     if ((fp = fopen(fp_source_name_1, "r")) == NULL)
     { /* Open source file. */
         perror("fopen source-file");
-        return 1;
+        exit(-1);
     }
+
 
     int * radioList = malloc(sizeof(int)*radio+1); // radioList = [0, R1, R2, R3,..., Rn] -> n = numero de radios
 
@@ -154,17 +155,24 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
 
         /* Childs process */
         origin_distance = distance(visibility);
-        
         i = 0;
+
         while(i < radio)
         {
-            if(radioList[i] <= origin_distance && origin_distance < radioList[i+1]){
+            if(radioList[i] <= origin_distance && origin_distance < radioList[i+1])
                 write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
+
+
+            else if(i == radio-1) // Completamente necesario! 
+            { 
+                write(childsData->childs[i+1]->fd_right[1], visibility, sizeof(visibility_s));
+                i = 100000; 
             }
 
+            i++;
         }
+
          /* End  childs */
-        contador++;
     }
 
     for (int i = 0; i < radio+1; ++i)
@@ -177,7 +185,6 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         visibility->w = 0.f;
         write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
     }
-
 
 
     fclose(fp);
