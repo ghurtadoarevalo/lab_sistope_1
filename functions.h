@@ -126,6 +126,8 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
 {
     FILE* fp;
     char buf[1024];
+    int i;
+    float origin_distance;
     /*if (argc != 2)
     {
         fprintf(stderr, "Usage: %s <soure-file>\n", argv[0]);
@@ -144,27 +146,25 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         radioList[i] = i*width;
    
 
-
     while (fgets(buf, sizeof(buf), fp) != NULL)
-    {
+    {   
         visibility_s * visibility = malloc(sizeof(visibility_s)); 
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
 
         /* Childs process */
-        float origin_distance = distance(visibility);
+        origin_distance = distance(visibility);
         
-        int i = 0;
+        i = 0;
         while(i < radio)
         {
             if(radioList[i] <= origin_distance && origin_distance < radioList[i+1]){
-                printf("Entre en i: %d con origin_distance: %f\n",i,origin_distance);
                 write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
             }
 
-            i = i + 1;
         }
          /* End  childs */
+        contador++;
     }
 
     for (int i = 0; i < radio+1; ++i)

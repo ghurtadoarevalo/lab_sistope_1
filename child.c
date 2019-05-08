@@ -4,7 +4,7 @@ int main(int argc, char const *argv[])
 {
     visibility_s *visibility;
     visibilityList_s *visibilityList = NULL;
-    float * results = calloc(4, sizeof(float));
+    float * results = calloc(5, sizeof(float));
     int len = 0;
 
     do{
@@ -26,9 +26,10 @@ int main(int argc, char const *argv[])
 	    results[1] = getAverageI(visibilityList, len);
 	    results[2] = getPow(visibilityList);
 	    results[3] = getNoise(visibilityList); 
+        results[4] = len;
     }
 
-    write(1, results, sizeof(float)*4);
+    write(1, results, sizeof(float)*5);
 
     return 0;
 }

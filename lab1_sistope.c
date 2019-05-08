@@ -2,11 +2,11 @@
 
 int main(int argc, char const *argv[])
 {
-    char * fp_source_name_1 = "text.csv";
+    char * fp_source_name_1 = "prueba1.csv";
     int i, status;
     int radio = 3;
     int width = 60;
-    float * results = malloc(sizeof(float)*4);
+    float * results = malloc(sizeof(float)*5);
     childsData_s * childsData = createChilds(radio,width);
     
     readData(fp_source_name_1,radio,width, childsData);
@@ -20,11 +20,10 @@ int main(int argc, char const *argv[])
 
     for(i = 0; i < radio+1; i++)
     {
-        read(childsData->childs[i]->fd_left[0], results, sizeof(float)*4);
-        printf("recibi el ultimo aliento de hijo: %d con results: %f %f %f %f\n",childsData->childs[i]->pid, results[0], results[1], results[2], results[3]);
+        read(childsData->childs[i]->fd_left[0], results, sizeof(float)*5);
+        printf("Soy el hijo de pid %d, procese %d visibilidades\n",childsData->childs[i]->pid, (int)results[4]);
         writeData(i+1, results, "gg.txt");
     }
-
 
     return 0;
 }
