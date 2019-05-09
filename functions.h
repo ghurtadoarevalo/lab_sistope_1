@@ -106,7 +106,7 @@ childsData_s * createChilds(int radiosQuantity)
 //Función que  lee línea por línea el archivo .csv y envía cada una de estas líneas al hijo que corresponda según su disco.
 //Entrada: Nombre del archivo, cantidad de radios (discos -1), ancho del disco, información de los hijos y un flag para indicar
 //si se muestra o no la información final de los hijos.
-//Salida
+//Salida: Ninguna.
 void readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData, int flag)
 {
     FILE* fp;
@@ -139,14 +139,16 @@ void readData(char * fp_source_name_1, int radio, int width, childsData_s * chil
 
         while(i < radio)
         {
+
             if(radioList[i] <= origin_distance && origin_distance < radioList[i+1])
+            {
                 write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
+            }
 
-
-            else if(i == radio-1) //Este if es necesario para tomar al último hijo.
+            else if(i == radio -1 && radioList[i] <= origin_distance) //Este if es necesario para tomar al último hijo.
             { 
                 write(childsData->childs[i+1]->fd_right[1], visibility, sizeof(visibility_s));
-                i = 100000; 
+                break;
             }
 
             i++;
