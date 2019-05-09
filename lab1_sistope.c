@@ -6,7 +6,6 @@ int main(int argc, char *argv[])
     char *nameFileIn = NULL, *nameFileOut = NULL;
     float *results = malloc(sizeof(float)*5);
 
-
     while((otp = getopt(argc, argv, ":i:o:n:d:b")) != -1)
     {
         if(otp == 'i')
@@ -16,6 +15,8 @@ int main(int argc, char *argv[])
              nameFileOut = optarg;
 
         else if(otp == 'n')
+            //Dado que se utilizo el radio en vez de los discos a lo largo del código
+            //Decidimos restar 1 a los discos para mantener lo demás.
             radio = atoi(optarg)-1;
 
         else if(otp == 'd')
@@ -26,35 +27,32 @@ int main(int argc, char *argv[])
         
         else
         {
-            perror("Invalid Sintaxis");
+            printf("Invalid Sintaxis\n");
             exit(-1);
         }
     }
 
     if(otp == -1 && argc == 1)
     {
-       perror("Invalid Sintaxis");
+        printf("Invalid Sintaxis, faltan operadores\n");
         exit(-1); 
     }
 
-    
     childsData_s * childsData = createChilds(radio);
-    readData(nameFileIn, radio, width, childsData);
-    //El padre espera a cada uno de los hijos
-    for(i = 0; i < radio+1; i++)
-        waitpid(childsData->childs[i]->pid, &status,WUNTRACED | WCONTINUED);   
-
-
-    //El padre recibe los últimos mensajes de sus hijos
+    readData(nameFileIn, radio, width, childsData, flag);
+    
     createOutFile(nameFileOut);
 
+    //El padre recibe los últimos mensajes de sus hijos
     for(i = 0; i < radio+1; i++)
     {
         read(childsData->childs[i]->fd_left[0], results, sizeof(float)*5);
-        if(flag == 1)
-            printf("Soy el hijo de pid %d, procese %d visibilidades\n",childsData->childs[i]->pid, (int)results[4]);
         writeData(i+1, results, nameFileOut);
     }
+
+    //El padre espera a cada uno de los hijos
+    for(i = 0; i < radio+1; i++)
+        waitpid(childsData->childs[i]->pid, &status,WUNTRACED | WCONTINUED);   
 
     return 0;
 }

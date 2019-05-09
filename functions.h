@@ -2,6 +2,10 @@
 #define FUNCTIONS_H
 #include "structs.h"
 
+//Función que tomando una línea del archivo .csv genera una estructura llamada visiblidad
+//la cual contiene U, V , R, I y W, además un status para saber si fue leido o no por algún hijo.
+//Entrada: String que contiene U,V,R,I y W separados por comas.
+//Salida: Estructura visiblidad.
 visibility_s * buildVisibility(char * readedData)
 {
     visibility_s * visibility = malloc(sizeof(visibility_s));
@@ -20,17 +24,12 @@ visibility_s * buildVisibility(char * readedData)
     visibility->w = atof(token);
     visibility->status = 1;
 
-    /*
-    printf("U: %f ; ", visibilities->list[i-1]->u);
-    printf("V: %f ;", visibilities->list[i-1]->v);
-    printf("R: %f ;", visibilities->list[i-1]->r);
-    printf("I: %f ;", visibilities->list[i-1]->i);
-    printf("W: %f ;\n", visibilities->list[i-1]->w);
-        */
-
     return visibility;
 }
 
+//Función que calcula una distancia (norma) utilizando U y V del vector.
+//Entrada: Estructura visibilidad.
+//Salida: La distancia calculada como un flotante.
 float distance(visibility_s * visibility)
 {
     float distance = 0;
@@ -39,6 +38,11 @@ float distance(visibility_s * visibility)
 }
 
 
+//Funcion que genera tantos hijos como discos (radio + 1) existen, además genera 2 pipes por cada hijo,
+//para luego establecer los dup2 y mantener los descriptores del pipe cuando se ejecute execl, lanzando
+//un programa completamente nuevo para cada hijo, que realiza los cálculos de las visiblidades que envía el padre.
+//Entrada: Cantidad de radios que habrán (discos - 1)
+//Salida: Lista de información de hijos. Cada hijo contiene los descriptores de los pipes y el id del hijo.
 childsData_s * createChilds(int radiosQuantity)
 {
     childsData_s * childsData = malloc(sizeof(childsData_s));
@@ -79,33 +83,11 @@ childsData_s * createChilds(int radiosQuantity)
             close(child->fd_right[1]); //Se cierra el escribir para el hijo
             
             dup2(child->fd_left[1],1); //Dup de escritura
-            close(child->fd_left[0]),
+            close(child->fd_left[0]), //Se cierra el leer para el hijo
             
             execl("child", "a", "b", NULL);
-            
-            /*child->pid = getpid();// -> se copia el valor del pid child_struct del hijo
-            
-            printf("Soy el hijo: %d y mi papi es: %d\n", getpid(), getppid());
-            
-            visibility_s * visibility = malloc(sizeof(visibility_s));
-            read(child->fd_right[0], visibility, sizeof(visibility_s));
-            float test = distance(visibility);
-            printf("Mi papi me está pasando origin_distance: %f con status: %d y yo soy: %d\n", test, visibility->status, getpid()) ;
-            while(!(visibility->u == 0.f && visibility->v == 0.f && visibility->r == 0.f && visibility->i == 0.f && visibility->w == 0.f))
-            {
-                if (visibility->status == 1)
-                {
-                    float test = distance(visibility);
-                    visibility->status = 0;
-                    printf("Mi papi me está pasando origin_distance: %f con status: %d y yo soy: %d, en el while\n", test, visibility->status, getpid()) ;
-                }
-                read(child->fd_right[0], visibility, sizeof(visibility_s));
 
-            }
-            printf("Soy el hijo: %d y mi papi es: %d, me mataron\n", getpid(), getppid());
-
-            write(child->fd_left[0], visibility, sizeof(visibility_s));*/
-
+            printf("Error, no se pudo ejecutar execl, el programa se cerrará\n");
             exit(1);
         }
 
@@ -121,21 +103,20 @@ childsData_s * createChilds(int radiosQuantity)
     return childsData;
 }
 
-
-int readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData)
+//Función que  lee línea por línea el archivo .csv y envía cada una de estas líneas al hijo que corresponda según su disco.
+//Entrada: Nombre del archivo, cantidad de radios (discos -1), ancho del disco, información de los hijos y un flag para indicar
+//si se muestra o no la información final de los hijos.
+//Salida
+void readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData, int flag)
 {
     FILE* fp;
     char buf[1024];
     int i;
     float origin_distance;
-    /*if (argc != 2)
-    {
-        fprintf(stderr, "Usage: %s <soure-file>\n", argv[0]);
-        return 1;
-    }*/
+
 
     if ((fp = fopen(fp_source_name_1, "r")) == NULL)
-    { /* Open source file. */
+    { 
         perror("fopen source-file");
         exit(-1);
     }
@@ -153,7 +134,6 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         buf[strlen(buf) - 1] = '\0'; // eat the newline fgets() stores
         visibility = buildVisibility(buf);
 
-        /* Childs process */
         origin_distance = distance(visibility);
         i = 0;
 
@@ -163,7 +143,7 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
                 write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
 
 
-            else if(i == radio-1) // Completamente necesario! 
+            else if(i == radio-1) //Este if es necesario para tomar al último hijo.
             { 
                 write(childsData->childs[i+1]->fd_right[1], visibility, sizeof(visibility_s));
                 i = 100000; 
@@ -183,12 +163,20 @@ int readData(char * fp_source_name_1, int radio, int width, childsData_s * child
         visibility->r = 0.f;
         visibility->i = 0.f;
         visibility->w = 0.f;
+
+        //Si flag es 0, entonces se le envía al hijo un -2 para indicar que no debe mostrar la ultima informacion
+        //Si flag es 1, entonces se le envía al hijo un -1 para indicar que debe mostrar la informacion.
+        visibility->status = -1;
+        if (flag == 0)
+        {
+            visibility->status = -2; 
+        }
+        
         write(childsData->childs[i]->fd_right[1], visibility, sizeof(visibility_s));
     }
 
 
     fclose(fp);
-    return 0;   
 }
 //printf("----------------------------------------------------------------------\n");
 

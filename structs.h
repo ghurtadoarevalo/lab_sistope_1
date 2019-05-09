@@ -23,7 +23,6 @@ typedef struct {
 	int * fd_right; // fd = [fd0,fd1];  pipe de ida 
 	int * fd_left; // fd = [fd0,fd1];  pipe de vuelta 
 	int pid;
-	int flag;
 } childData_s;
 
 //Estructura que mantiene una lista de los fd's de cada hijo
@@ -32,12 +31,15 @@ typedef struct {
 	int lenght;
 }childsData_s;
 
+//Estructura utilizada en los hijos que agrupa todas las visibilidades que van llegando a un hijo (disco).
 struct visibilityList_s {
 	visibility_s *visibility;
 	struct visibilityList_s *next;
 };
 typedef struct visibilityList_s visibilityList_s;
 
+
+//Funciones utilizadas en el padre.
 //------------------------------------------------------------
 
 visibility_s * buildVisibility(char * readedData);
@@ -46,11 +48,10 @@ float distance(visibility_s * visibility);
 
 childsData_s * createChilds(int radiosQuantity);
 
-int readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData);
+void readData(char * fp_source_name_1, int radio, int width, childsData_s * childsData, int flag);
 
+//Funciones utilizadas en los hijos.
 //------------------------------------------------------------
-
-float distance(visibility_s *visibility);
 
 float getAverageR(visibilityList_s *visibilityList, int len);
 
