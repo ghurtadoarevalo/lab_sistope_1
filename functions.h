@@ -2,6 +2,9 @@
 #define FUNCTIONS_H
 #include "structs.h"
 
+//Funcionalidades del padre
+//-------------------------------------------------------------------------------------------------------------//
+
 //Función que tomando una línea del archivo .csv genera una estructura llamada visiblidad
 //la cual contiene U, V , R, I y W, además un status para saber si fue leido o no por algún hijo.
 //Entrada: String que contiene U,V,R,I y W separados por comas.
@@ -180,8 +183,13 @@ void readData(char * fp_source_name_1, int radio, int width, childsData_s * chil
 
     fclose(fp);
 }
-//printf("----------------------------------------------------------------------\n");
 
+//Funcionalidades de los hijos
+//-------------------------------------------------------------------------------------------------------------//
+
+//Función que calcula la media real de todas las visibilidades. (1/len * Sumatoria(visibility->r))
+//Entrada: Lista enlazada con las visibilidades y la cantidad de elementos de la lista.
+//Salida: Número flotante con la media real.
 float getAverageR(visibilityList_s *visibilityList, int len)
 {
     float summR = 0;
@@ -195,7 +203,9 @@ float getAverageR(visibilityList_s *visibilityList, int len)
     return summR/len;
 }   
 
-
+//Función que calcula la media imaginaria de todas las visibilidades. (1/len * Sumatoria(visibility->i))
+//Entrada: Lista enlazada con las visibilidades y la cantidad de elementos de la lista.
+//Salida: Número flotante con la media imaginaria.
 float getAverageI(visibilityList_s *visibilityList, int len)
 {
     float summI = 0;
@@ -209,7 +219,9 @@ float getAverageI(visibilityList_s *visibilityList, int len)
     return summI/len;
 }
 
-
+//Función que calcula la potencia de todas las visibilidades. (Sumatoria( raiz((visibility->r )**2 + (visibility->i)**2)))
+//Entrada: Lista enlazada con las visibilidades y la cantidad de elementos de la lista.
+//Salida: Número flotante con la potencia.
 float getPow(visibilityList_s *visibilityList)
 {
     float summW = 0;
@@ -223,7 +235,9 @@ float getPow(visibilityList_s *visibilityList)
     return summW;
 }
 
-
+//Función que calcula el ruido total de las visibilidades. (Sumatoria(visibility->w))
+//Entrada: Lista enlazada con las visibilidades y la cantidad de elementos de la lista.
+//Salida: Número flotante con el ruido total.
 float getNoise(visibilityList_s *visibilityList)
 {
     float summR = 0;
@@ -237,7 +251,9 @@ float getNoise(visibilityList_s *visibilityList)
     return summR;
 }
 
-
+//Funcion que permite agregar una visibilidad a la lista enlazada de visiblidades.
+//Entrada: Lista enlazada de visibilidades, nueva visibilidad.
+//Salida: Ninguna. 
 void appendVisibility(visibilityList_s **visibilityList, visibility_s *newVisibility)
 {
     if((*visibilityList) == NULL){
@@ -254,25 +270,18 @@ void appendVisibility(visibilityList_s **visibilityList, visibility_s *newVisibi
     }
 }
 
-void printDataList(visibilityList_s *visibilityList)
-{
-    visibilityList_s *auxVisibilityList = visibilityList;
-    //printf("Star data -------------\n");
-    while(auxVisibilityList != NULL){
-        //printf("(%f %f %f %f %f)\n", (auxVisibilityList->visibility)->u, (auxVisibilityList->visibility)->v,
-         //   (auxVisibilityList->visibility)->r, (auxVisibilityList->visibility)->i, (auxVisibilityList->visibility)->w);
-
-        auxVisibilityList = auxVisibilityList->next; 
-    } 
-    //printf("End data --------------\n");
-}
-
+//Funcion que crea un archivo con el nombre del string entrante.
+//Entrada: Nombre del archivo de salida.
+//Salida: Ninguna.
 void createOutFile(char *outFileName)
 {
     FILE *file = fopen(outFileName, "w");
     fclose(file);
 }
 
+//Función que escribe los resultados de los discos en el archivo de salida.
+//Entrada: numero de disco, lista con los resultados del disco, nombre del archivo de salida.
+//Salida: Ninguna.
 void writeData(int number, float *results, char *outFileName)
 {
 	FILE *file = fopen(outFileName, "a");
