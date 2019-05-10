@@ -1,24 +1,6 @@
-TARGET = lab1_sistope
-LIBS = -lm
-CC = gcc
-CFLAGS = -g -Wall
+all: padre hijo 
 
-.PHONY: default all clean
-
-default: $(TARGET)
-all: default
-
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
-HEADERS = $(wildcard *.h)
-
-%.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-.PRECIOUS: $(TARGET) $(OBJECTS)
-
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
-
-clean:
-	-rm -f *.o
-	-rm -f $(TARGET)
+padre: lab1.c
+	gcc -o lab1 lab1.c -lm
+hijo: Vis.c
+	gcc -o Vis Vis.c -lm

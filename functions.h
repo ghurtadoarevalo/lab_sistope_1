@@ -88,7 +88,7 @@ childsData_s * createChilds(int radiosQuantity)
             dup2(child->fd_left[1],1); //Dup de escritura
             close(child->fd_left[0]), //Se cierra el leer para el hijo
             
-            execl("child", "a", "b", NULL);
+            execl("Vis", "a", "b", NULL);
 
             printf("Error, no se pudo ejecutar execl, el programa se cerrará\n");
             exit(1);
